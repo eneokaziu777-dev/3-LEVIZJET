@@ -1,0 +1,255 @@
+<!DOCTYPE html><html lang="sq"><head><meta charset="utf-8"><title>Lëvizjet drejtvizore · Klaster 3D</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="color-scheme" content="dark">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#02040c;--tx:#d6ecff;--mu:#7fa6c4;--cy:#00e5ff;--or:#ff7a1a;--vi:#b04cff;--c:var(--cy);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:radial-gradient(ellipse at 50% 40%,#0a1f3d 0,#040a1a 55%,#010205 100%);color:var(--tx);font:500 17px/1.5 Rajdhani,'Segoe UI',sans-serif;overflow:hidden}
+h1,h2,h3,.btn,nav button{font-family:Orbitron,'Segoe UI',sans-serif}
+#cv{position:fixed;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,229,255,.035) 0 1px,transparent 1px 4px);z-index:3}
+#hud{position:fixed;inset:64px 10px 10px;border:1px solid rgba(0,229,255,.14);pointer-events:none;border-radius:4px}
+#hud::before,#hud::after{content:"";position:absolute;width:26px;height:26px;border:2px solid var(--cy)}
+#hud::before{left:-1px;top:-1px;border-right:0;border-bottom:0}#hud::after{right:-1px;bottom:-1px;border-left:0;border-top:0}
+nav{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;height:54px;display:flex;align-items:center;gap:6px;padding:0 12px;background:rgba(2,6,16,.82);backdrop-filter:blur(8px);border-bottom:1px solid rgba(0,229,255,.25);z-index:20;overflow-x:auto;white-space:nowrap}
+nav b{font:800 13px Orbitron,sans-serif;color:var(--cy);margin-right:10px;text-shadow:0 0 10px var(--cy)}
+nav button,.btn{background:rgba(0,229,255,.07);color:var(--tx);border:1px solid rgba(0,229,255,.4);padding:7px 12px;font-size:11px;letter-spacing:.06em;cursor:pointer;border-radius:3px;transition:.2s}
+nav button:hover,.btn:hover,nav button.on{background:rgba(0,229,255,.22);box-shadow:0 0 14px rgba(0,229,255,.5)}
+nav button:focus-visible,.btn:focus-visible,.op:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#tip{position:fixed;z-index:6;pointer-events:none;max-width:260px;padding:10px 12px;background:rgba(2,10,24,.92);border:1px solid var(--c);box-shadow:0 0 18px var(--c);border-radius:4px;display:none;font-size:15px}
+#hint{position:fixed;left:0;right:0;bottom:calc(20px + env(safe-area-inset-bottom,0px));text-align:center;color:var(--mu);font-size:14px;pointer-events:none;padding:0 20px;z-index:4}
+#zm{position:fixed;right:20px;bottom:70px;display:flex;flex-direction:column;gap:6px;z-index:5}
+.ov{position:fixed;inset:54px 0 0;top:calc(54px + env(safe-area-inset-top,0px));display:none;overflow-y:auto;background:rgba(2,5,15,.9);backdrop-filter:blur(10px);z-index:10}
+.wrap{max-width:1120px;margin:0 auto;padding:18px 18px 60px}
+.back{margin:14px 18px 0;position:sticky;top:8px;z-index:2;background:rgba(2,8,20,.9)}
+h2{font-size:clamp(20px,3.6vw,34px);margin:.4em 0;color:var(--c);text-shadow:0 0 18px var(--c)}
+h3{font-size:14px;color:var(--c);margin:1.2em 0 .4em;letter-spacing:.04em}
+.lead{font-size:19px;max-width:70ch}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.sim{width:100%;aspect-ratio:2/1;display:block;border:1px solid rgba(0,229,255,.3);border-radius:6px;background:radial-gradient(ellipse at 50% 100%,#0d2a4d,#030a18)}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.ro{display:flex;gap:10px;flex-wrap:wrap}.ro span{flex:1;min-width:90px;padding:6px 10px;border:1px solid rgba(0,229,255,.25);border-radius:4px;background:rgba(0,229,255,.05);color:var(--mu);font-size:14px}
+.ro b{display:block;font:800 18px Orbitron,sans-serif;color:var(--c)}
+.fms div{padding:8px 14px;margin:6px 0;border-left:3px solid var(--c);background:rgba(255,255,255,.04);font:600 19px Rajdhani,sans-serif;letter-spacing:.03em}
+.note{color:var(--mu);border:1px dashed rgba(255,255,255,.2);padding:10px;border-radius:4px}
+.gs{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-top:18px}.gs canvas{width:100%;height:auto;border:1px solid rgba(0,229,255,.2);border-radius:6px;background:rgba(0,10,30,.6)}
+.modes{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.sl{display:grid;grid-template-columns:1fr 1fr;gap:6px 22px;margin:10px 0}.sl label{display:block;color:var(--mu);font-size:14px}.sl b{color:#fff}.sl input{width:100%;accent-color:var(--c)}
+.c3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0}
+.card{padding:14px;border:1px solid var(--c);border-radius:6px;background:rgba(5,15,35,.7);box-shadow:inset 0 0 24px rgba(255,255,255,.03)}
+.card h3{margin-top:0}.card p{margin:.4em 0}.card canvas{width:100%;height:auto}
+.op{display:block;width:100%;text-align:left;margin:8px 0;padding:11px 14px;background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.3);color:var(--tx);font:600 17px Rajdhani,sans-serif;border-radius:4px;cursor:pointer}
+.op:hover{background:rgba(0,229,255,.18)}.op.ok{border-color:#2f6;background:rgba(40,255,100,.15)}.op.no{border-color:#f35;background:rgba(255,40,80,.15)}
+.big{font:800 54px Orbitron,sans-serif;color:var(--cy);text-shadow:0 0 24px var(--cy)}
+#qz{max-width:760px;margin:0 auto}
+#intro{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 45%,#0a2347,#010308 70%);text-align:center;padding:20px}
+#intro h1{font-size:clamp(28px,7vw,68px);margin:0;color:#fff;text-shadow:0 0 30px var(--cy),0 0 60px var(--cy);letter-spacing:.12em}
+#intro p{color:var(--mu);letter-spacing:.2em}.bar{width:min(340px,80vw);height:4px;background:#0a1d33;margin:26px 0}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--vi),var(--or));box-shadow:0 0 14px var(--cy)}
+@media(max-width:820px){.cols2,.c3{grid-template-columns:1fr}#zm{bottom:90px}.sl{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<canvas id="cv"></canvas><div id="hud"></div><div id="tip"></div>
+<div id="hint">Rrotullo: zvarrit me maus · Zmadho: rrota · Zhvendos: klik i djathtë ose Shift · Kliko një degë për ta hapur</div>
+<div id="zm"><button class="btn" id="zi" aria-label="Zmadho">＋</button><button class="btn" id="zo" aria-label="Zvogëlo">－</button></div>
+<nav><b>⬡ FIZIKA 3D</b><button data-go="home" class="on">Klasteri</button><button data-go="0">Njëtrajtshme</button><button data-go="1">Përshpejtuar</button><button data-go="2">Ngadalësuar</button><button data-go="lab">VIRTUAL PHYSICS LAB</button><button data-go="cmp">Krahasimi</button><button data-go="quiz">Kuiz</button></nav>
+
+<section class="ov" id="ov-b"><button class="btn back">⬡ KTHEHU TE KLASTERI</button><div class="wrap">
+<h2 id="bt"></h2><p class="lead" id="bd"></p>
+<div class="cols2"><div><h3>Karakteristikat kryesore</h3><ul id="bf"></ul><h3>Shembull nga jeta e përditshme</h3><p id="be"></p><h3>Formulat</h3><div class="fms" id="bm"></div><p class="note" id="bn"></p></div>
+<div><canvas class="sim" id="bc"></canvas><div class="ctl" data-c="b"></div><div class="ro" id="bro"><span>Koha t (s)<b data-k="t">0</b></span><span>Shpejtësia v (m/s)<b data-k="v">0</b></span><span>Rruga s (m)<b data-k="s">0</b></span></div><p class="note">Pikat e bardha në rrugë shënojnë pozicionin e makinës çdo 1 s.</p></div></div>
+<div class="gs"><canvas id="g1" width="360" height="210"></canvas><canvas id="g2" width="360" height="210"></canvas><canvas id="g3" width="360" height="210"></canvas></div></div></section>
+
+<section class="ov" id="ov-lab"><button class="btn back">⬡ KTHEHU TE KLASTERI</button><div class="wrap">
+<h2>VIRTUAL PHYSICS LAB</h2><p class="lead">Zgjidh llojin e lëvizjes dhe ndrysho parametrat me slider-a. Makina, vlerat dhe grafikët përditësohen menjëherë.</p>
+<div class="modes"><button class="btn" data-m="0">Njëtrajtshme</button><button class="btn" data-m="1">Njëtrajtësisht e përshpejtuar</button><button class="btn" data-m="2">Njëtrajtësisht e ngadalësuar</button></div>
+<div class="cols2"><div><canvas class="sim" id="lc"></canvas><div class="ctl" data-c="l"></div></div>
+<div><div class="sl"><label>Shpejtësia fillestare v₀: <b id="lv0v"></b> m/s<input type="range" id="lv0" min="0" max="40" step="1"></label>
+<label><span id="lal">Nxitimi a</span>: <b id="lav"></b> m/s²<input type="range" id="la" min="0" max="10" step="0.5"></label>
+<label>Koha e lëvizjes t: <b id="ltv"></b> s<input type="range" id="lt" min="1" max="20" step="1"></label>
+<label>Distanca (gjatësia e pistës): <b id="ldv"></b> m<input type="range" id="ld" min="20" max="500" step="10"></label></div>
+<div class="ro" id="lro"><span>Koha t (s)<b data-k="t">0</b></span><span>Shpejtësia v (m/s)<b data-k="v">0</b></span><span>Distanca s (m)<b data-k="s">0</b></span><span>Nxitimi a (m/s²)<b data-k="a">0</b></span></div>
+<p class="note" id="lnote"></p></div></div>
+<div class="gs"><canvas id="l1" width="360" height="210"></canvas><canvas id="l2" width="360" height="210"></canvas><canvas id="l3" width="360" height="210"></canvas></div></div></section>
+
+<section class="ov" id="ov-cmp"><button class="btn back">⬡ KTHEHU TE KLASTERI</button><div class="wrap">
+<h2>Krahasimi i tri lëvizjeve</h2><p class="lead">Të tri makinat përshkojnë 100 m në 10 s, por në mënyra krejt të ndryshme: shiko pikat e shënuara çdo sekondë.</p>
+<canvas class="sim" id="cc"></canvas><div class="ctl" data-c="c"></div><div class="c3" id="c3"></div></div></section>
+
+<section class="ov" id="ov-quiz"><button class="btn back">⬡ KTHEHU TE KLASTERI</button><div class="wrap"><div id="qz"></div></div></section>
+
+<div id="intro"><h1>LËVIZJET<br>DREJTVIZORE</h1><p>HOLOGRAM INTERAKTIV · FIZIKË</p><div class="bar"><i></i></div><button class="btn" id="go" style="opacity:0;font-size:14px;padding:12px 22px">AKTIVIZO KLASTERIN</button></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],T3=THREE;
+const CS=['#00e5ff','#ff7a1a','#b04cff'],CH=[0x00e5ff,0xff7a1a,0xb04cff];
+// ---- fizika ----
+function mo(p,t){if(p.k==0)return{s:p.v0*t,v:p.v0,a:0};
+if(p.k==1)return{s:p.v0*t+p.a*t*t/2,v:p.v0+p.a*t,a:p.a};
+const ts=p.a>0?p.v0/p.a:1e9,u=Math.min(t,ts);return{s:p.v0*u-p.a*u*u/2,v:p.v0-p.a*u,a:t<ts?-p.a:0}}
+const KL={s:'Rruga s (m) në varësi të kohës t (s)',v:'Shpejtësia v (m/s) në varësi të kohës t (s)',a:'Nxitimi a (m/s²) në varësi të kohës t (s)'};
+function gr(cv,p,T,key,cur,col){const x=cv.getContext('2d'),W=cv.width,H=cv.height,L=40,B=24,v=[];
+for(let i=0;i<=80;i++)v.push(mo(p,T*i/80)[key]);
+let lo=Math.min(0,...v),hi=Math.max(0,...v);if(key=='a'){hi=Math.max(hi,1);lo=Math.min(lo,-1)}if(hi-lo<1e-6)hi=lo+1;
+const X=t=>L+(W-L-10)*t/T,Y=y=>H-B-(H-B-24)*(y-lo)/(hi-lo),d=hi-lo<8?1:0;
+x.clearRect(0,0,W,H);x.lineWidth=1;x.font='11px sans-serif';
+for(let i=0;i<=4;i++){const q=lo+(hi-lo)*i/4,yy=Y(q);x.strokeStyle='rgba(120,200,255,.14)';x.beginPath();x.moveTo(L,yy);x.lineTo(W-10,yy);x.stroke();x.fillStyle='#7fa6c4';x.fillText(q.toFixed(d),3,yy+4)}
+x.strokeStyle='rgba(210,235,255,.7)';x.beginPath();x.moveTo(L,Y(0));x.lineTo(W-10,Y(0));x.moveTo(L,20);x.lineTo(L,H-B);x.stroke();
+x.fillStyle='#7fa6c4';x.fillText('0',L,H-9);x.fillText(T.toFixed(0)+' s',W-36,H-9);
+x.fillStyle=col;x.font='bold 12px sans-serif';x.fillText(KL[key],L+4,13);
+x.strokeStyle=col;x.lineWidth=2.5;x.shadowColor=col;x.shadowBlur=10;x.beginPath();v.forEach((y,i)=>i?x.lineTo(X(T*i/80),Y(y)):x.moveTo(X(0),Y(y)));x.stroke();
+const c=Math.min(cur,T);x.fillStyle='#fff';x.beginPath();x.arc(X(c),Y(mo(p,c)[key]),5,0,7);x.fill();x.shadowBlur=0}
+// ---- skena e makinës ----
+function mkCar(c,arr){const g=new T3.Group(),m=new T3.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:.4,metalness:.6,roughness:.3});arr.push(m);
+const b=new T3.Mesh(new T3.BoxGeometry(3,.7,1.5),m);b.position.y=.7;g.add(b);
+const k=new T3.Mesh(new T3.BoxGeometry(1.5,.55,1.3),new T3.MeshStandardMaterial({color:0x0b1a2e,emissive:c,emissiveIntensity:.15}));k.position.set(-.2,1.28,0);g.add(k);
+[[-1,-.8],[1,-.8],[-1,.8],[1,.8]].forEach(a=>{const w=new T3.Mesh(new T3.CylinderGeometry(.35,.35,.3,16),new T3.MeshBasicMaterial({color:0x111a28}));w.rotation.x=Math.PI/2;w.position.set(a[0],.35,a[1]);g.add(w)});return g}
+const sims=[];
+class Sim{constructor(cv,n,cols){this.cv=cv;this.n=n;this.cm=[];this.t=0;this.play=false;
+const R=this.R=new T3.WebGLRenderer({canvas:cv,antialias:true,alpha:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
+const S=this.S=new T3.Scene();this.C=new T3.PerspectiveCamera(45,2,.1,300);
+S.add(new T3.AmbientLight(0x88aaff,.8));const pl=new T3.PointLight(0xffffff,1.2);pl.position.set(0,18,12);S.add(pl);
+const g=new T3.GridHelper(70,35,0x15486a,0x0b2840);g.position.y=-.02;S.add(g);this.cars=[];this.mk=[];
+for(let i=0;i<n;i++){const z=(i-(n-1)/2)*5.5,c=cols[i],ms=[];this.cm.push(ms);
+const rd=new T3.Mesh(new T3.BoxGeometry(44,.1,4),new T3.MeshBasicMaterial({color:0x0a1a2e}));rd.position.z=z;S.add(rd);
+const em=()=>{const m=new T3.MeshBasicMaterial({color:c});ms.push(m);return m};
+[-2,2].forEach(o=>{const e=new T3.Mesh(new T3.BoxGeometry(44,.12,.08),em());e.position.set(0,.02,z+o);S.add(e)});
+for(let k=0;k<=10;k++){const q=new T3.Mesh(new T3.BoxGeometry(.1,.6,.1),em());q.position.set(-20+4*k,.3,z-2.4);S.add(q)}
+const car=mkCar(c,ms);car.position.set(-20,0,z);S.add(car);this.cars.push(car);
+const m=[];for(let j=0;j<=20;j++){const s=new T3.Mesh(new T3.SphereGeometry(.28,10,10),new T3.MeshBasicMaterial({color:0xffffff}));s.position.set(0,.3,z+1.4);s.visible=false;S.add(s);m.push(s)}this.mk.push(m)}
+sims.push(this)}
+col(i,c){this.cm[i].forEach(m=>{m.color.set(c);m.emissive&&m.emissive.set(c)})}
+setP(ps,D,T,keep){this.ps=ps;this.D=D;this.T=T;if(!keep){this.t=0;this.play=false}this.t=Math.min(this.t,T);this.upd()}
+done(){return this.t>=this.T||(this.n==1&&mo(this.ps[0],this.t).s>=this.D)}
+upd(){const{t,ps,D}=this,st=ps.map(p=>mo(p,t));
+this.cars.forEach((c,i)=>c.position.x=-20+40*Math.min(st[i].s,D)/D);
+this.mk.forEach((m,i)=>m.forEach((s,j)=>{const q=mo(ps[i],j).s;s.visible=j>0&&j<=this.T&&j<=t&&q<=D;s.position.x=-20+40*q/D}));
+this.tick&&this.tick(t,st)}
+step(dt){const{cv,R,C}=this,w=cv.clientWidth,h=cv.clientHeight;if(!w)return;
+if(this.w!=w||this.h!=h){this.w=w;this.h=h;R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix()}
+if(this.play){this.t+=dt;if(this.done()){this.t=Math.min(this.t,this.T);this.play=false}this.upd()}
+C.position.set(0,9+this.n*3,14+40/C.aspect);C.lookAt(0,0,0);R.render(this.S,C)}}
+function bind(el,s){el.innerHTML='<button class="btn" data-a="play">▶ PLAY</button><button class="btn" data-a="pause">❚❚ PAUSE</button><button class="btn" data-a="reset">↺ RESET</button><button class="btn" data-a="replay">⟲ REPLAY</button>';
+el.onclick=e=>{const a=e.target.dataset.a;if(!a)return;
+if(a=='play'){if(s.done())s.t=0;s.play=true}else if(a=='pause')s.play=false;
+else{s.t=0;s.play=a=='replay';s.upd()}}}
+const RO=(el,o)=>{for(const k in o)el.querySelector('[data-k='+k+']').textContent=o[k].toFixed(2)};
+// ---- përmbajtja ----
+const P=[{k:0,v0:10,a:0},{k:1,v0:0,a:2},{k:2,v0:20,a:2}];
+const NM=['Njëtrajtshme','Përshpejtuar','Ngadalësuar'],SYM=['v = konst.','a > 0','a < 0'];
+const TIP=['Rrugë të barabarta në intervale të barabarta kohe. v = konst., a = 0.','Shpejtësia rritet njëtrajtësisht. Nxitim konstant dhe pozitiv.','Shpejtësia zvogëlohet njëtrajtësisht deri në ndalim. a < 0.'];
+const D=[{t:'Lëvizja drejtvizore e njëtrajtshme',d:'Lëvizja drejtvizore e njëtrajtshme është lëvizja në vijë të drejtë gjatë së cilës trupi përshkon rrugë të barabarta në intervale të barabarta kohe, sado i vogël të jetë ky interval.',
+f:['Trajektorja është vijë e drejtë.','Shpejtësia është konstante: v = konst.','Nxitimi është zero: a = 0.','Rruga është drejtpërdrejt proporcionale me kohën: s ~ t.','Grafiku s–t është vijë e drejtë e pjerrët; grafiku v–t është vijë horizontale.'],
+e:'Një tren që në një pjesë të drejtë të hekurudhës ruan shpejtësinë 30 m/s përshkon 30 m çdo sekondë, pra 300 m në 10 s. Shkallët lëvizëse në qendrat tregtare lëvizin gjithashtu pothuajse me shpejtësi konstante.',
+m:['v = s / t','s = v · t','t = s / v','v = konst.','a = 0'],n:'Pjerrësia e grafikut s–t është e barabartë me shpejtësinë. Sipërfaqja nën grafikun v–t është e barabartë me rrugën. Në simulim: v = 10 m/s, pra çdo pikë shënon 10 m.'},
+{t:'Lëvizja drejtvizore njëtrajtësisht e përshpejtuar',d:'Është lëvizja në vijë të drejtë gjatë së cilës shpejtësia e trupit rritet njësoj në intervale të barabarta kohe, pra nxitimi mbetet konstant dhe pozitiv.',
+f:['Trajektorja është vijë e drejtë.','Nxitimi është konstant dhe pozitiv: a = konst. > 0.','Shpejtësia rritet në mënyrë të barabartë: Δv është e njëjtë çdo sekondë.','Rruga në sekonda të njëpasnjëshme rritet; për v₀ = 0 raportet janë 1 : 3 : 5 : 7 …','Grafiku s–t është parabolë, v–t është vijë e drejtë me pjerrësi pozitive, a–t është vijë horizontale.'],
+e:'Një makinë që nis nga semafori dhe shtyp gazin; një gur që bie lirshëm (a = g ≈ 9,8 m/s²); një biçikletë që zbret një shpat të qetë.',
+m:['a = (v − v₀) / t','v = v₀ + a · t','s = v₀ · t + (a · t²) / 2','v² = v₀² + 2 · a · s'],n:'Në simulim: v₀ = 0 dhe a = 2 m/s². Distancat mes pikave të njëpasnjëshme janë 1 m, 3 m, 5 m, 7 m … pra makina përshkon gjithnjë e më shumë rrugë në të njëjtat intervale kohe.'},
+{t:'Lëvizja drejtvizore njëtrajtësisht e ngadalësuar',d:'Është lëvizja në vijë të drejtë gjatë së cilës shpejtësia zvogëlohet njësoj në intervale të barabarta kohe. Vektori i nxitimit ka kah të kundërt me lëvizjen, pra a < 0 kur drejtimi pozitiv është drejtimi i lëvizjes.',
+f:['Trajektorja është vijë e drejtë.','Nxitimi është konstant dhe negativ: a = −aₙ, ku aₙ > 0 është madhësia e ngadalësimit.','Shpejtësia zvogëlohet në mënyrë të barabartë deri sa trupi ndalon.','Rruga në sekonda të njëpasnjëshme zvogëlohet.','Grafiku s–t është kurbë gjithnjë më pak e pjerrët, v–t është vijë e drejtë me pjerrësi negative, a–t është vijë horizontale nën boshtin e kohës.'],
+e:'Një makinë që frenon para kalimit të këmbësorëve; një top që rrokulliset mbi tokë dhe ndalon nga fërkimi; një gur i hedhur vertikalisht lart gjatë ngjitjes.',
+m:['a = (v − v₀) / t   (a < 0)','v = v₀ − aₙ · t','s = v₀ · t − (aₙ · t²) / 2','v² = v₀² − 2 · aₙ · s'],n:'Koha e ndalimit: t = v₀ / aₙ. Rruga e frenimit: s = v₀² / (2aₙ). Në simulim: v₀ = 20 m/s dhe aₙ = 2 m/s², pra makina ndalon pas 10 s, në 100 m.'}];
+// ---- paneli i degës ----
+const bs=new Sim($('#bc'),1,[CH[0]]);bind($('[data-c=b]'),bs);let bk=0;
+bs.tick=(t,st)=>{RO($('#bro'),{t,v:st[0].v,s:Math.min(st[0].s,bs.D)});const p=P[bk];gr($('#g1'),p,10,'s',t,CS[bk]);gr($('#g2'),p,10,'v',t,CS[bk]);if(bk)gr($('#g3'),p,10,'a',t,CS[bk])};
+function fillB(k){bk=k;const d=D[k];$('#ov-b').style.setProperty('--c',CS[k]);$('#bt').textContent=d.t;$('#bd').textContent=d.d;
+$('#bf').innerHTML=d.f.map(x=>'<li>'+x+'</li>').join('');$('#be').textContent=d.e;$('#bm').innerHTML=d.m.map(x=>'<div>'+x+'</div>').join('');$('#bn').textContent=d.n;
+$('#g3').style.display=k?'block':'none';bs.col(0,CH[k]);bs.setP([P[k]],100,10)}
+// ---- laboratori ----
+const ls=new Sim($('#lc'),1,[CH[1]]);bind($('[data-c=l]'),ls);let lk=1;
+const LD=[[10,0],[0,2],[20,2]];
+function lp(){const v0=+$('#lv0').value,a=lk?+$('#la').value:0,T=+$('#lt').value,Dd=+$('#ld').value;
+$('#lv0v').textContent=v0;$('#lav').textContent=a;$('#ltv').textContent=T;$('#ldv').textContent=Dd;
+const msg=lk==2&&a>0?'Ndalon pas '+(v0/a).toFixed(1)+' s, pas '+(v0*v0/2/a).toFixed(1)+' m.':'';$('#lnote').textContent='Çdo pikë e bardhë shënon pozicionin pas 1 s. '+msg;ls.setP([{k:lk,v0,a}],Dd,T,true)}
+ls.tick=(t,st)=>{const p=ls.ps[0],c=CS[lk];RO($('#lro'),{t,v:st[0].v,s:Math.min(st[0].s,ls.D),a:st[0].a});gr($('#l1'),p,ls.T,'s',t,c);gr($('#l2'),p,ls.T,'v',t,c);gr($('#l3'),p,ls.T,'a',t,c)};
+function lm(k){lk=k;$('#lv0').value=LD[k][0];$('#la').value=LD[k][1];$('#lt').value=10;$('#ld').value=100;$('#la').disabled=!k;
+$('#lal').textContent=k==2?'Ngadalësimi aₙ':'Nxitimi a';ls.col(0,CH[k]);$('#ov-lab').style.setProperty('--c',CS[k]);ls.t=0;ls.play=false;lp()}
+$$('[data-m]').forEach(b=>b.onclick=()=>lm(+b.dataset.m));$$('#ov-lab input').forEach(i=>i.oninput=lp);lm(1);
+// ---- krahasimi ----
+const CD=[['konstante','a = 0','s = v · t','rritet njëtrajtshëm','Treni në pjesë të drejtë me shpejtësi konstante'],['rritet njëtrajtësisht','a > 0, konstant','s = v₀t + at²/2','rritet gjithnjë më shpejt','Makina që nis nga semafori'],['zvogëlohet njëtrajtësisht','a < 0, konstant','s = v₀t − aₙt²/2','rritet gjithnjë më ngadalë','Makina që frenon para kalimit të këmbësorëve']];
+const FM=['v = s / t · v = konst.','v = v₀ + a·t · v² = v₀² + 2·a·s','v = v₀ − aₙ·t · v² = v₀² − 2·aₙ·s'];
+$('#c3').innerHTML=CD.map((c,i)=>`<div class="card" style="--c:${CS[i]}"><h3>${D[i].t}</h3><p><b>Shpejtësia:</b> ${c[0]}</p><p><b>Nxitimi:</b> ${c[1]}</p><p><b>Rruga:</b> ${c[2]} (${c[3]})</p><p><b>Formulat:</b> ${FM[i]}</p><canvas id="cg${i}" width="360" height="210"></canvas><p><b>Shembull:</b> ${c[4]}.</p><div class="ro" id="cr${i}"><span>v (m/s)<b data-k="v">0</b></span><span>s (m)<b data-k="s">0</b></span></div></div>`).join('');
+const cs=new Sim($('#cc'),3,CH);bind($('[data-c=c]'),cs);cs.setP(P,100,10);
+cs.tick=(t,st)=>st.forEach((q,i)=>{RO($('#cr'+i),{v:q.v,s:q.s});gr($('#cg'+i),P[i],10,'v',t,CS[i])});cs.upd();
+// ---- kuizi ----
+const Q=[['Sa është nxitimi në lëvizjen drejtvizore të njëtrajtshme?',['a > 0','a < 0','a = 0','a rritet me kohën'],2,'Shpejtësia është konstante, prandaj ndryshimi i saj është zero dhe nxitimi a = 0.'],
+['Si duket grafiku s–t i lëvizjes së njëtrajtshme?',['Parabolë','Vijë e drejtë e pjerrët','Vijë horizontale','Hiperbolë'],1,'Nga s = v · t, rruga është funksion linear i kohës, pra grafiku është vijë e drejtë, pjerrësia e së cilës është shpejtësia.'],
+['Një trup lëviz me v = 15 m/s për 8 s. Sa rrugë përshkon?',['120 m','23 m','1,9 m','60 m'],0,'s = v · t = 15 · 8 = 120 m.'],
+['Si është grafiku v–t i lëvizjes njëtrajtësisht të përshpejtuar?',['Vijë horizontale','Parabolë','Vijë e drejtë me pjerrësi pozitive','Vijë e drejtë me pjerrësi negative'],2,'v = v₀ + a · t është funksion linear me koeficient kendor a > 0.'],
+['Një makinë nis nga qetësia me a = 3 m/s². Sa është shpejtësia pas 6 s?',['18 m/s','9 m/s','2 m/s','36 m/s'],0,'v = a · t = 3 · 6 = 18 m/s.'],
+['Sa rrugë përshkon makina e pyetjes së mëparshme gjatë këtyre 6 s?',['18 m','54 m','108 m','36 m'],1,'s = a · t² / 2 = 3 · 36 / 2 = 54 m.'],
+['Cila formulë vlen për lëvizjen njëtrajtësisht të përshpejtuar?',['s = v · t','v² = v₀² + 2 · a · s','v = v₀ − aₙ · t','a = s / t'],1,'Kjo lidh shpejtësinë, nxitimin dhe rrugën pa e përdorur kohën.'],
+['Ku ndodhet grafiku a–t i lëvizjes njëtrajtësisht të ngadalësuar?',['Mbi boshtin e kohës','Nën boshtin e kohës','Mbi boshtin e rrugës','Është vijë vertikale'],1,'Nxitimi është negativ, prandaj vija horizontale ndodhet nën boshtin e kohës.'],
+['Një makinë me v₀ = 20 m/s frenon me aₙ = 5 m/s². Pas sa sekondash ndalon?',['2 s','4 s','5 s','100 s'],1,'Nga v = v₀ − aₙ · t me v = 0: t = v₀ / aₙ = 20 / 5 = 4 s.'],
+['Sa është rruga e frenimit për makinën e pyetjes 9?',['40 m','80 m','20 m','100 m'],0,'s = v₀² / (2aₙ) = 400 / 10 = 40 m.']];
+let qi=0,sc=0,lock=false;
+function qr(){const b=$('#qz');if(qi>=Q.length){const pc=sc*10;b.innerHTML=`<h2>Rezultati final</h2><div class="big">${sc} / 10</div><p>Saktësia: <b>${pc}%</b> · Pikë: ${sc*10} nga 100</p><p>${pc>=90?'Shkëlqyeshëm! E zotëron plotësisht temën.':pc>=60?'Mirë! Rishiko formulat dhe grafikët për t’u përmirësuar.':'Rishiko tri degët e klasterit dhe provo përsëri.'}</p><button class="btn" id="qre">↺ RIFILLO KUIZIN</button>`;$('#qre').onclick=()=>{qi=sc=0;qr()};return}
+const q=Q[qi];lock=false;b.innerHTML=`<h2>Kuiz interaktiv</h2><p class="note">Pyetja ${qi+1} nga ${Q.length} · Pikë: ${sc*10}</p><h3 style="font-size:17px">${q[0]}</h3>${q[1].map((o,i)=>`<button class="op" data-i="${i}">${'ABCD'[i]}. ${o}</button>`).join('')}<p id="qx" class="note" style="display:none"></p><button class="btn" id="qn" style="display:none">${qi==Q.length-1?'SHIKO REZULTATIN':'PYETJA TJETËR'}</button>`;
+$('#qn').onclick=()=>{qi++;qr()}}
+$('#qz').onclick=e=>{const o=e.target.closest('.op');if(!o||lock)return;lock=true;const q=Q[qi],i=+o.dataset.i;
+$$('.op').forEach((x,j)=>{if(j==q[2])x.classList.add('ok');else if(j==i)x.classList.add('no')});
+if(i==q[2])sc++;$('#qx').style.display='block';$('#qx').innerHTML=(i==q[2]?'<b>Saktë! +10 pikë.</b> ':'<b>Gabim.</b> ')+q[3];$('#qn').style.display='inline-block'};qr();
+// ---- klasteri 3D ----
+const cv=$('#cv'),R=new T3.WebGLRenderer({canvas:cv,antialias:true,alpha:true});R.setPixelRatio(Math.min(devicePixelRatio,2));
+const S=new T3.Scene(),C=new T3.PerspectiveCamera(55,1,.1,300),o={th:.4,ph:1.3,r:21,t:new T3.Vector3(),auto:!matchMedia('(prefers-reduced-motion:reduce)').matches};
+function cam(){C.position.set(o.t.x+o.r*Math.sin(o.ph)*Math.sin(o.th),o.t.y+o.r*Math.cos(o.ph),o.t.z+o.r*Math.sin(o.ph)*Math.cos(o.th));C.lookAt(o.t)}
+S.add(new T3.AmbientLight(0x6688cc,.7));const pl=new T3.PointLight(0xffffff,1.6,70);S.add(pl);
+const sp=new Float32Array(2400);for(let i=0;i<2400;i+=3){const r=30+Math.random()*50,a=Math.random()*6.28,b=Math.acos(2*Math.random()-1);sp[i]=r*Math.sin(b)*Math.cos(a);sp[i+1]=r*Math.cos(b);sp[i+2]=r*Math.sin(b)*Math.sin(a)}
+const sg=new T3.BufferGeometry();sg.setAttribute('position',new T3.BufferAttribute(sp,3));S.add(new T3.Points(sg,new T3.PointsMaterial({size:.2,color:0x88ccff,transparent:true,opacity:.75})));
+const gd=new T3.GridHelper(90,45,0x0e4a6e,0x082033);gd.position.y=-8;S.add(gd);
+function lab(ls,col,w,h,fs){const c=document.createElement('canvas');c.width=512;c.height=256;const x=c.getContext('2d');x.font='800 '+fs+'px Orbitron,sans-serif';x.textAlign='center';x.fillStyle=col;x.shadowColor=col;x.shadowBlur=18;
+ls.forEach((t,i)=>x.fillText(t,256,128+(i-(ls.length-1)/2)*fs*1.25+fs*.35));
+const s=new T3.Sprite(new T3.SpriteMaterial({map:new T3.CanvasTexture(c),transparent:true,depthTest:false}));s.scale.set(w,h,1);s.renderOrder=10;return s}
+const core=new T3.Group();S.add(core);
+core.add(new T3.Mesh(new T3.IcosahedronGeometry(1.9,1),new T3.MeshBasicMaterial({color:0x66ddff,wireframe:true})));
+core.add(new T3.Mesh(new T3.SphereGeometry(1.3,24,24),new T3.MeshBasicMaterial({color:0x04162c})));
+const rings=[0,1,2].map(i=>{const r=new T3.Mesh(new T3.TorusGeometry(2.5+i*.4,.03,8,90),new T3.MeshBasicMaterial({color:CH[i]}));r.rotation.set(i*1.1,i*.7,0);core.add(r);return r});
+S.add(lab(['LËVIZJET','DREJTVIZORE'],'#fff',5,2.5,40));
+const PS=[[-7.5,1.2,1.5],[5.5,3.8,-2],[4.5,-3.8,3]].map(a=>new T3.Vector3(...a)),nodes=[],hits=[],tubes=[],parts=[],curves=[],GE=[()=>new T3.OctahedronGeometry(1.1),()=>new T3.ConeGeometry(.9,1.9,6),()=>new T3.DodecahedronGeometry(1)];
+for(let k=0;k<3;k++){const cu=new T3.QuadraticBezierCurve3(new T3.Vector3(),PS[k].clone().multiplyScalar(.5).add(new T3.Vector3(0,1.8,0)),PS[k]);curves.push(cu);
+const tb=new T3.Mesh(new T3.TubeGeometry(cu,40,.07,8),new T3.MeshBasicMaterial({color:CH[k],transparent:true,opacity:.5}));S.add(tb);tubes.push(tb);
+const pg=new T3.BufferGeometry();pg.setAttribute('position',new T3.BufferAttribute(new Float32Array(48),3));const pt=new T3.Points(pg,new T3.PointsMaterial({color:CH[k],size:.4,transparent:true,blending:T3.AdditiveBlending,depthWrite:false}));pt.frustumCulled=false;S.add(pt);parts.push(pt);
+const g=new T3.Group();g.position.copy(PS[k]);const m=new T3.MeshStandardMaterial({color:CH[k],emissive:CH[k],emissiveIntensity:.35,metalness:.5,roughness:.3});
+g.add(new T3.Mesh(GE[k](),m));const w=new T3.Mesh(GE[k](),new T3.MeshBasicMaterial({color:CH[k],wireframe:true,transparent:true,opacity:.5}));w.scale.setScalar(1.45);g.add(w);
+const rg=new T3.Mesh(new T3.TorusGeometry(1.9,.03,8,60),new T3.MeshBasicMaterial({color:CH[k]}));rg.rotation.x=1.2;g.add(rg);
+const lb=lab([NM[k],SYM[k]],CS[k],5,2.5,38);lb.position.y=-2.7;g.add(lb);
+const ht=new T3.Mesh(new T3.SphereGeometry(2.2,12,12),new T3.MeshBasicMaterial({visible:false}));ht.userData.k=k;g.add(ht);hits.push(ht);
+g.userData={m,w,rg};S.add(g);nodes.push(g)}
+let hov=-1,drag=false,moved=0,pts=new Map(),pd=0;const rc=new T3.Raycaster(),mv=new T3.Vector2(),tip=$('#tip');
+function pick(e){const r=cv.getBoundingClientRect();mv.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);rc.setFromCamera(mv,C);const h=rc.intersectObjects(hits)[0];hov=h?h.object.userData.k:-1;
+cv.style.cursor=hov>=0?'pointer':drag?'grabbing':'grab';
+if(hov>=0){tip.style.display='block';tip.style.setProperty('--c',CS[hov]);tip.innerHTML='<b style="color:'+CS[hov]+'">'+D[hov].t+'</b><br>'+TIP[hov];tip.style.left=Math.min(e.clientX+16,innerWidth-280)+'px';tip.style.top=e.clientY+16+'px'}else tip.style.display='none'}
+cv.onpointerdown=e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);drag=true;moved=0;o.auto=false;pd=0;tip.style.display='none'};
+cv.onpointermove=e=>{if(!pts.has(e.pointerId)||!drag)return pick(e);const p=pts.get(e.pointerId),dx=e.clientX-p[0],dy=e.clientY-p[1];pts.set(e.pointerId,[e.clientX,e.clientY]);moved+=Math.abs(dx)+Math.abs(dy);
+if(pts.size==2){const a=[...pts.values()],d=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);if(pd)o.r=Math.min(45,Math.max(6,o.r*pd/d));pd=d;return}
+if(e.shiftKey||e.buttons==2||e.ctrlKey){const m=C.matrixWorld,x=new T3.Vector3(),y=new T3.Vector3(),z=new T3.Vector3();m.extractBasis(x,y,z);const s=o.r*.0016;o.t.addScaledVector(x,-dx*s).addScaledVector(y,dy*s)}else{o.th-=dx*.006;o.ph=Math.min(3.0,Math.max(.15,o.ph-dy*.006))}};
+cv.onpointerup=cv.onpointercancel=e=>{pts.delete(e.pointerId);drag=false;pd=0;if(moved<6&&e.type=='pointerup'){pick(e);if(hov>=0)fly(hov)}};
+cv.oncontextmenu=e=>e.preventDefault();
+cv.addEventListener('wheel',e=>{e.preventDefault();o.auto=false;o.r=Math.min(45,Math.max(6,o.r*(1+e.deltaY*.001)))},{passive:false});
+$('#zi').onclick=()=>o.r=Math.max(6,o.r*.8);$('#zo').onclick=()=>o.r=Math.min(45,o.r*1.25);
+let ov=null;
+function fly(k){o.auto=false;tip.style.display='none';gsap.to(o.t,{x:PS[k].x,y:PS[k].y,z:PS[k].z,duration:1.1,ease:'power2.inOut'});gsap.to(o,{r:8,duration:1.1,ease:'power2.inOut',onComplete:()=>{fillB(k);show('ov-b')}})}
+function show(id){$$('.ov').forEach(e=>e.style.display='none');const e=$('#'+id);e.style.display='block';e.scrollTop=0;ov=id;gsap.fromTo(e,{opacity:0,y:30},{opacity:1,y:0,duration:.5});
+$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.go==id.slice(3)||(id=='ov-b'&&b.dataset.go==bk)))}
+function home(){$$('.ov').forEach(e=>e.style.display='none');ov=null;gsap.to(o.t,{x:0,y:0,z:0,duration:1});gsap.to(o,{r:21,ph:1.3,duration:1,onComplete:()=>o.auto=true});
+$$('nav button').forEach(b=>b.classList.toggle('on',b.dataset.go=='home'))}
+$$('[data-go]').forEach(b=>b.onclick=()=>{const x=b.dataset.go;bs.play=false;if(x=='home')home();else if('012'.includes(x)){if(ov){$$('.ov').forEach(e=>e.style.display='none');ov=null}fly(+x)}else show('ov-'+x)});
+$$('.back').forEach(b=>b.onclick=home);
+// ---- cikli kryesor ----
+let last=performance.now(),cw=0,ch=0;
+function loop(n){const dt=Math.min(.05,(n-last)/1000);last=n;const t=n/1000;
+sims.forEach(s=>s.step(dt));
+if(!ov){const w=cv.clientWidth,h=cv.clientHeight;if(w!=cw||h!=ch){cw=w;ch=h;R.setSize(w,h,false);C.aspect=w/h;C.updateProjectionMatrix()}
+if(o.auto)o.th+=.0016;core.rotation.y+=.004;core.rotation.x+=.002;rings.forEach((r,i)=>r.rotation.z+=.006*(i+1));
+nodes.forEach((g,k)=>{const h=hov==k,u=g.userData;g.scale.lerp(new T3.Vector3().setScalar(h?1.3:1),.12);u.m.emissiveIntensity+=((h?1.3:.35)-u.m.emissiveIntensity)*.12;u.w.rotation.y+=.01;u.rg.rotation.z+=.015;g.children[0].rotation.y+=.01;tubes[k].material.opacity=h?.95:.5;
+const a=parts[k].geometry.attributes.position;for(let j=0;j<16;j++){const p=curves[k].getPoint((t*.22+j/16)%1);a.setXYZ(j,p.x,p.y,p.z)}a.needsUpdate=true});
+cam();R.render(S,C)}
+requestAnimationFrame(loop)}
+cam();requestAnimationFrame(loop);
+// ---- ekrani hyrës ----
+gsap.fromTo('#intro h1',{opacity:0,letterSpacing:'.6em'},{opacity:1,letterSpacing:'.12em',duration:1.6,ease:'power3.out'});
+gsap.to('.bar i',{width:'100%',duration:1.8,ease:'power1.inOut',onComplete:()=>gsap.to('#go',{opacity:1,duration:.5})});
+$('#go').onclick=()=>gsap.to('#intro',{opacity:0,duration:.8,onComplete:()=>{$('#intro').remove();gsap.from(o,{r:46,duration:2.2,ease:'power3.out'})}});
+</script></body></html>
